@@ -88,13 +88,13 @@ public class PlayerPowers : MonoBehaviour
     {
         RaycastHit hit;
 
-        Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1000f);
+        Physics.Raycast(focuspoint.transform.position,focuspoint.transform.forward, out hit, 1000f);
         // Then you could find your GO with a specific tag by doing something like:
         if (hit.transform.GetComponent<Element>() != null)
         {
             Debug.Log("EARTHHHHH");
             //hit.transform.position = new Vector3(hit.transform.position.x, hit.transform.position.y + 2, hit.transform.position.z);
-
+            grabbedEarth = hit.transform.gameObject;
             switch (elementequipped)
             {
                 case 0:
@@ -192,6 +192,85 @@ public class PlayerPowers : MonoBehaviour
 
     void Update()
     {
+        // Debug.Log("Grab Button set");
+        // Debug.Log("Grab Button set");
+        if (grabbedEarth != null)
+        { grabbedEarth.transform.position = Vector3.MoveTowards(grabbedEarth.transform.position,focuspoint.transform.position,2.0f * Time.deltaTime); }
+        if (Input.GetAxis("HTC_VIU_UnityAxis3") != 0)
+        {
+            Debug.Log("HTC_VIU_UnityAxis3");
+        }
+        else { grabbedEarth = null; }
+
+        if (Input.GetAxis("HTC_VIU_UnityAxis1") != 0)
+        {
+            rayCheck();
+            Debug.Log("HTC_VIU_UnityAxis1");
+        }
+        //if (Input.GetAxis("HTC_VIU_UnityAxis4") != 0)
+        //{
+        //    Debug.Log("HTC_VIU_UnityAxis4");
+        //}
+        //if (Input.GetAxis("HTC_VIU_UnityAxis3") != 0)
+        //{
+        //    Debug.Log("HTC_VIU_UnityAxis3");
+        //}
+        //if (Input.GetAxis("HTC_VIU_UnityAxis2") != 0)
+        //{
+        //    Debug.Log("HTC_VIU_UnityAxis2");
+          
+        //}
+        //if (Input.GetAxis("HTC_VIU_UnityAxis12") != 0)
+        //{
+        //    Debug.Log("HTC_VIU_UnityAxis12");
+        //}
+        //if (Input.GetAxis("HTC_VIU_UnityAxis11") != 0)
+        //{
+        //    Debug.Log("HTC_VIU_UnityAxis11");
+        //}
+
+        //if (Input.GetAxis("Vertical") != 0)
+        //{
+        //    Debug.Log("vert");
+        //}
+
+
+        //if (Input.GetKeyDown(KeyCode.JoystickButton8))
+        //{
+        //    Debug.Log("b8");
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton7))
+        //{
+        //    Debug.Log("b7");
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton6))
+        //{
+        //    Debug.Log("b6");
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton5))
+        //{
+        //    Debug.Log("b5");
+           
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton4))
+        //{
+        //    Debug.Log("b4");
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton3))
+        //{
+        //    Debug.Log("b3");
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton2))
+        //{
+        //    Debug.Log("b2");
+
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton1))
+        //{
+        //    Debug.Log("b1");
+        //}
+
+
         if (focusOn == true)
         { focusing(); }
 

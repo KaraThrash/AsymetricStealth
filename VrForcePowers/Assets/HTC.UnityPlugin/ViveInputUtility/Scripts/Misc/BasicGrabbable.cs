@@ -102,12 +102,15 @@ namespace HTC.UnityPlugin.Vive
 
         public ColliderButtonEventData.InputButton grabButton
         {
+         
             get
             {
+                Debug.Log("Grab Button get");
                 return m_grabButton;
             }
             set
             {
+                Debug.Log("Grab Button set");
                 m_grabButton = value;
                 MaterialChanger.SetAllChildrenHeighlightButton(gameObject, value);
             }
