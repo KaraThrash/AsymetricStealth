@@ -186,8 +186,8 @@ public class Element : MonoBehaviour {
             {
                 if (collision.gameObject.GetComponent<Rigidbody>() != null && collision.transform.name != "RigidBodyFPSController")
                 {
-                    gameObject.AddComponent<FixedJoint>();
-                    gameObject.GetComponent<FixedJoint>().connectedBody = collision.rigidbody;
+                    //gameObject.AddComponent<FixedJoint>();
+                   // gameObject.GetComponent<FixedJoint>().connectedBody = collision.rigidbody;
                 }
             }
             

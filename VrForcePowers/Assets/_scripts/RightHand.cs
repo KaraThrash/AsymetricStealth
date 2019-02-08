@@ -56,14 +56,35 @@ public class RightHand : MonoBehaviour
                     debugObject2.transform.position = Vector3.MoveTowards(debugObject2.transform.position, heldElement.transform.position + (righthand.transform.position - handPoint), 2.0f * Time.deltaTime);
 
                     if (elementequipped == 3) { CollectWater(); }
-                    if (Input.GetAxis("HTC_VIU_UnityAxis4") != 0) { GrabMoreEarth(); }
-                            foreach (GameObject go in heldElementGroup)
+                if (Input.GetAxis("HTC_VIU_UnityAxis4") > 0 )
+                {
+                    if (canChangeElement == true && elementequipped == 1)
+                    {
+                        GrabMoreEarth();
+                        canChangeElement = false;
+                    }
+
+                }
+                else if (Input.GetAxis("HTC_VIU_UnityAxis4") < 0)
+                {
+                    if (canChangeElement == true && heldElementGroup.Count > 1)
+                    {
+                        heldElementGroup[heldElementGroup.Count - 1].GetComponent<Rigidbody>().useGravity = true;
+                        heldElementGroup[heldElementGroup.Count - 1].GetComponent<Rigidbody>().AddForce(Vector3.up * 2.0f * Time.deltaTime,ForceMode.Impulse);
+                        heldElementGroup.RemoveAt(heldElementGroup.Count - 1);
+                        canChangeElement = false;
+                    }
+
+                }
+                else { canChangeElement = true; }
+                if (Input.GetAxis("HTC_VIU_UnityAxis5") >= 0.5f || Input.GetAxis("HTC_VIU_UnityAxis5") <= -0.5f) { handPoint = righthand.transform.position; }
+                foreach (GameObject go in heldElementGroup)
                             {
                                 if (go.GetComponent<Rigidbody>() == true)
                                 {
                                     if (Vector3.Distance(righthand.transform.position, handPoint) > 0.1f )
-                                    { go.GetComponent<Rigidbody>().AddForce((righthand.transform.position - handPoint) * 2.0f * Time.deltaTime, ForceMode.Impulse); }
-                                    else { go.GetComponent<Rigidbody>().AddForce((debugObject2.transform.position - go.transform.position) * Vector3.Distance(debugObject2.transform.position , go.transform.position) * 2.0f * Time.deltaTime, ForceMode.Impulse); }
+                                    { go.GetComponent<Rigidbody>().AddForce((righthand.transform.position - handPoint).normalized * 3.0f * Time.deltaTime, ForceMode.Impulse); }
+                                    else { go.GetComponent<Rigidbody>().AddForce((debugObject2.transform.position - go.transform.position) * Vector3.Distance(debugObject2.transform.position , go.transform.position)  * Time.deltaTime, ForceMode.Impulse); }
                                 }
                             }
                 }
@@ -103,13 +124,18 @@ public class RightHand : MonoBehaviour
     }
     public GameObject GrabMoreEarth()
     {
-        RaycastHit[] hit = Physics.SphereCastAll(heldElementGroup[0].transform.position, 35.0f, -transform.up);
+        RaycastHit[] hit = Physics.SphereCastAll(heldElementGroup[0].transform.position, 35.0f, -Vector3.up);
         Debug.Log("Grab more earth hit: " + hit.Length);
         foreach  (RaycastHit go in hit)
             { if  (go.transform.GetComponent<Element>() != null)
                 {
                     if (go.transform.GetComponent<Element>().elementType == 1 && heldElementGroup.Contains(go.transform.gameObject) == false)
-                    { heldElementGroup.Add(go.transform.gameObject); go.transform.GetComponent<Rigidbody>().useGravity = false; go.transform.GetComponent<Rigidbody>().AddForce(go.transform.up * 5.0f, ForceMode.Impulse); }
+                    {
+                    heldElementGroup.Add(go.transform.gameObject);
+                    go.transform.GetComponent<Rigidbody>().useGravity = false;
+                    go.transform.GetComponent<Rigidbody>().AddForce(Vector3.up * 5.0f, ForceMode.Impulse);
+                    return go.transform.gameObject;
+                    }
 
                 }
          }
@@ -118,14 +144,14 @@ public class RightHand : MonoBehaviour
     }
     public void CollectWater()
     {
-        RaycastHit[] hit = Physics.SphereCastAll(heldElementGroup[0].transform.position, 35.0f, -transform.up);
+        RaycastHit[] hit = Physics.SphereCastAll(heldElementGroup[0].transform.position, 35.0f, -Vector3.up);
         Debug.Log("Grab more water hit: " + hit.Length);
         foreach (RaycastHit go in hit)
         {
             if (go.transform.GetComponent<Element>() != null)
             {
                 if (go.transform.GetComponent<Element>().elementType == 3 && heldElementGroup.Contains(go.transform.gameObject) == false)
-                { heldElementGroup.Add(go.transform.gameObject); go.transform.GetComponent<Rigidbody>().useGravity = false;  go.transform.GetComponent<Rigidbody>().AddForce(go.transform.up * 5.0f, ForceMode.Impulse); }
+                { heldElementGroup.Add(go.transform.gameObject); go.transform.GetComponent<Rigidbody>().useGravity = false;  go.transform.GetComponent<Rigidbody>().AddForce(Vector3.up * 5.0f, ForceMode.Impulse); }
 
             }
         }

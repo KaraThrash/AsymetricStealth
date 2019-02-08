@@ -21,6 +21,8 @@ public class Sword : MonoBehaviour
     {
         blade.canStick = true;
         blade.stuckInWall = false;
+      //  if (blade.transform.childCount > 0)
+      //  { foreach (Transform go in blade.transform) { go.GetComponent<Rigidbody>().isKinematic = false; go.transform.parent = null; } }
         GetComponent<Rigidbody>().isKinematic = false;
     }
 
@@ -28,11 +30,17 @@ public class Sword : MonoBehaviour
     {
         if (stuckInWall == false && canStick == true && isBlade == true)
         {
-
-            stuckInWall = true;
-            canStick = false;
-            handle.GetComponent<Rigidbody>().isKinematic = true;
-
+          //  if (collision.GetComponent<Rigidbody>() != null)
+          //  {
+          //      collision.GetComponent<Rigidbody>().isKinematic = true;
+          //      collision.transform.root.parent = this.transform;
+          //  }
+           // else
+           // {
+                stuckInWall = true;
+                canStick = false;
+                handle.GetComponent<Rigidbody>().isKinematic = true;
+          //  }
         }
     }
 }
