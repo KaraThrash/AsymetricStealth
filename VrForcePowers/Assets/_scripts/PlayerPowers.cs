@@ -8,6 +8,7 @@ public class PlayerPowers : MonoBehaviour
     public Material iceColor;
     public Material[] colors;
     public GameObject focuspoint,lefthand,righthand,leftwrist,rightwrist,debugObject, debugObject2;
+    public GameObject leftHeldElement,rightHeldElement;
     public GameObject firePrefab;
     public GameObject windPrefab;
     public GameObject grabbedEarth;
@@ -98,25 +99,21 @@ public class PlayerPowers : MonoBehaviour
             debugObject.transform.position = hit.point;
             //hit.transform.position = new Vector3(hit.transform.position.x, hit.transform.position.y + 2, hit.transform.position.z);
             grabbedEarth = hit.transform.gameObject;
+            if (focuspoint == righthand) { rightHeldElement = hit.transform.gameObject; }
+            if (focuspoint == lefthand) { leftHeldElement = hit.transform.gameObject; }
+
             objectPoint = hit.point;
             handPoint = righthand.transform.position;
             switch (elementequipped)
             {
-                case 0:
+                case 0://air
                     break;
-                case 1:
+                case 1://earth
                     if (hit.transform.GetComponent<Element>().elementType == 1 && grabbedEarth == null)
                     { grabbedEarth = hit.transform.gameObject; grabbedEarth.transform.position = new Vector3(grabbedEarth.transform.position.x, transform.position.y + 1, grabbedEarth.transform.position.z); grabbedEarth.GetComponent<Rigidbody>().useGravity = false; }
                     break;
-                case 2:
-                    //GameObject clone = Instantiate(windPrefab, focuspoint.transform.position, focuspoint.transform.rotation) as GameObject;
-                    //clone.GetComponent<Element>().curwindpower = clone.GetComponent<Element>().windpower * -1;
-                    focusOn = false;
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    if (hit.transform.GetComponent<Element>().elementType == 4)
+                case 2://fire
+                    if (hit.transform.GetComponent<Element>().elementType == 2)
                     {
                         if (heldfire == null)
                         {
@@ -125,6 +122,15 @@ public class PlayerPowers : MonoBehaviour
                             //GameObject.Destroy(clone, 3);
                         }
                     }
+
+                    //GameObject clone = Instantiate(windPrefab, focuspoint.transform.position, focuspoint.transform.rotation) as GameObject;
+                    //clone.GetComponent<Element>().curwindpower = clone.GetComponent<Element>().windpower * -1;
+                    focusOn = false;
+                    break;
+                case 3://water
+                    break;
+                case 4:
+                  
                     break;
             }
 
@@ -150,7 +156,7 @@ public class PlayerPowers : MonoBehaviour
         //}
     }
 
-    // Update is called once per frame
+ 
     public void focusing()
     {
         if (nearbywater.Count > 0)
@@ -197,6 +203,10 @@ public class PlayerPowers : MonoBehaviour
 
     void Update()
     {
+       // Debug.Log("1: " + Input.GetAxis("HTC_VIU_UnityAxis1") + " 2: " + Input.GetAxis("HTC_VIU_UnityAxis2") + " 4: " + Input.GetAxis("HTC_VIU_UnityAxis4") + " 5: " + Input.GetAxis("HTC_VIU_UnityAxis5"));
+      //26 left hand 27 right hand isolated from 3rd axis
+      // 1 left hort 4 RIGHT hort
+      // 2 left vert 5 right vert
         if (Input.GetAxis("HTC_VIU_UnityAxis1") != 0)
         {
 
@@ -228,96 +238,107 @@ public class PlayerPowers : MonoBehaviour
           
 
         }
-        if (Input.GetAxis("HTC_VIU_UnityAxis3") != 0  )
+        if (Input.GetAxis("HTC_VIU_UnityAxis27") > 0  )
         {
+            Debug.Log("27 right hand");
+            focuspoint = righthand;
             if (grabbedEarth == null)
             { rayCheck(); }
             
             
+        }
+        else if (Input.GetAxis("HTC_VIU_UnityAxis26") > 0)
+        {
+            Debug.Log("26 left hand");
+            focuspoint = lefthand;
+            if (grabbedEarth == null)
+            { rayCheck(); }
+
+
         }
         else
         {
             if (grabbedEarth != null)
             { grabbedEarth.GetComponent<Rigidbody>().useGravity = true; }
             grabbedEarth = null; }
-     
+
 
         //axis 1 2 left trach pad
         //axis 4 5 right track pad
         //axis 3 trigger
         // 11 left grip 12 right grip
-                //if (Input.GetAxis("HTC_VIU_UnityAxis1") != 0)
-                //{
-           
-                //    Debug.Log("HTC_VIU_UnityAxis1");
-                //}
-                //if (Input.GetAxis("HTC_VIU_UnityAxis4") != 0)
-                //{
-                //    Debug.Log("HTC_VIU_UnityAxis4");
-                //}
-      
-                //if (Input.GetAxis("HTC_VIU_UnityAxis5") != 0)
-                //{
-                //    Debug.Log("HTC_VIU_UnityAxis5");
-                //}
-                //if (Input.GetAxis("HTC_VIU_UnityAxis2") != 0)
-                //{
-                //    Debug.Log("HTC_VIU_UnityAxis2");
+        //if (Input.GetAxis("HTC_VIU_UnityAxis1") != 0)
+        //{
 
-                //}
-                //if (Input.GetAxis("HTC_VIU_UnityAxis6") != 0)
-                //{
-                //    Debug.Log("HTC_VIU_UnityAxis6");
-                //}
-                //if (Input.GetAxis("HTC_VIU_UnityAxis12") != 0)
-                //{
-                //    Debug.Log("HTC_VIU_UnityAxis12");
-                //}
-                //if (Input.GetAxis("HTC_VIU_UnityAxis11") != 0)
-                //{
-                //    Debug.Log("HTC_VIU_UnityAxis11");
-                //}
+        //    Debug.Log("HTC_VIU_UnityAxis1");
+        //}
+        //if (Input.GetAxis("HTC_VIU_UnityAxis4") != 0)
+        //{
+        //    Debug.Log("HTC_VIU_UnityAxis4");
+        //}
 
-                //if (Input.GetAxis("Vertical") != 0)
-                //{
-                //    Debug.Log("vert");
-                //}
+        //if (Input.GetAxis("HTC_VIU_UnityAxis5") != 0)
+        //{
+        //    Debug.Log("HTC_VIU_UnityAxis5");
+        //}
+        //if (Input.GetAxis("HTC_VIU_UnityAxis2") != 0)
+        //{
+        //    Debug.Log("HTC_VIU_UnityAxis2");
+
+        //}
+        //if (Input.GetAxis("HTC_VIU_UnityAxis6") != 0)
+        //{
+        //    Debug.Log("HTC_VIU_UnityAxis6");
+        //}
+        //if (Input.GetAxis("HTC_VIU_UnityAxis12") != 0)
+        //{
+        //    Debug.Log("HTC_VIU_UnityAxis12");
+        //}
+        //if (Input.GetAxis("HTC_VIU_UnityAxis11") != 0)
+        //{
+        //    Debug.Log("HTC_VIU_UnityAxis11");
+        //}
+
+        //if (Input.GetAxis("Vertical") != 0)
+        //{
+        //    Debug.Log("vert");
+        //}
 
 
-                //if (Input.GetKeyDown(KeyCode.JoystickButton8))
-                //{
-                //    Debug.Log("b8");
-                //}
-                //if (Input.GetKeyDown(KeyCode.JoystickButton7))
-                //{
-                //    Debug.Log("b7");
-                //}
-                //if (Input.GetKeyDown(KeyCode.JoystickButton6))
-                //{
-                //    Debug.Log("b6");
-                //}
-                //if (Input.GetKeyDown(KeyCode.JoystickButton5))
-                //{
-                //    Debug.Log("b5");
+        //if (Input.GetKeyDown(KeyCode.JoystickButton8))
+        //{
+        //    Debug.Log("b8");
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton7))
+        //{
+        //    Debug.Log("b7");
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton6))
+        //{
+        //    Debug.Log("b6");
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton5))
+        //{
+        //    Debug.Log("b5");
 
-                //}
-                //if (Input.GetKeyDown(KeyCode.JoystickButton4))
-                //{
-                //    Debug.Log("b4");
-                //}
-                //if (Input.GetKeyDown(KeyCode.JoystickButton3))
-                //{
-                //    Debug.Log("b3");
-                //}
-                //if (Input.GetKeyDown(KeyCode.JoystickButton2))
-                //{
-                //    Debug.Log("b2");
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton4))
+        //{
+        //    Debug.Log("b4");
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton3))
+        //{
+        //    Debug.Log("b3");
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton2))
+        //{
+        //    Debug.Log("b2");
 
-                //}
-                //if (Input.GetKeyDown(KeyCode.JoystickButton1))
-                //{
-                //    Debug.Log("b1");
-                //}
+        //}
+        //if (Input.GetKeyDown(KeyCode.JoystickButton1))
+        //{
+        //    Debug.Log("b1");
+        //}
 
 
         //if (focusOn == true)
