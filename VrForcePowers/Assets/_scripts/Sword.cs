@@ -30,17 +30,24 @@ public class Sword : MonoBehaviour
     {
         if (stuckInWall == false && canStick == true && isBlade == true)
         {
-          //  if (collision.GetComponent<Rigidbody>() != null)
-          //  {
-          //      collision.GetComponent<Rigidbody>().isKinematic = true;
-          //      collision.transform.root.parent = this.transform;
-          //  }
-           // else
-           // {
-                stuckInWall = true;
-                canStick = false;
-                handle.GetComponent<Rigidbody>().isKinematic = true;
-          //  }
+            //  if (collision.GetComponent<Rigidbody>() != null)
+            //  {
+            //      collision.GetComponent<Rigidbody>().isKinematic = true;
+            //      collision.transform.root.parent = this.transform;
+            //  }
+            // else
+            // {
+            stuckInWall = true;
+            canStick = false;
+            handle.GetComponent<Rigidbody>().isKinematic = true;
+            //  }
         }
+       
     }
+    public void OnCollisionEnter(Collision collision)
+    {
+        if (isBlade == false)
+        { blade.canStick = false; blade.stuckInWall = false; GetComponent<Rigidbody>().isKinematic = false; }
+    }
+
 }

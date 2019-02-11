@@ -219,6 +219,12 @@ public class RightHand : MonoBehaviour
         }
         else
         {
+            if (hit.transform.GetComponent<Rigidbody>() != null)
+            {
+                //  hit.transform.GetComponent<Rigidbody>().AddForce(rightwrist.transform.position - hit.transform.position * Time.deltaTime * 1.0f,ForceMode.Impulse);
+                hit.transform.GetComponent<Rigidbody>().velocity = rightwrist.transform.position - hit.transform.position ;
+             //   hit.transform.position = Vector3.MoveTowards(hit.transform.position, transform.position, Time.deltaTime * 5.0f);
+            }
             //GameObject go = hit.collider.gameObject;
 
             //if (go.transform.Find("Fire(Clone)") == null )
