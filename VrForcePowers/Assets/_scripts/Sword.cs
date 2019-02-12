@@ -40,6 +40,7 @@ public class Sword : MonoBehaviour
     }
     public void OnCollisionEnter(Collision collision)
     {
+        
         if (isBlade == false)
         { blade.canStick = false; blade.stuckInWall = false; GetComponent<Rigidbody>().isKinematic = false; }
     }
