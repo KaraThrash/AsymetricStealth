@@ -53,7 +53,7 @@ public class RightHand : MonoBehaviour
             if (heldElementGroup.Count <= 0)
             { rayCheck(); }
             else {
-                    debugObject2.transform.position = Vector3.MoveTowards(debugObject2.transform.position, heldElement.transform.position + (righthand.transform.position - handPoint), 2.0f * Time.deltaTime);
+                    debugObject2.transform.position = Vector3.MoveTowards(debugObject2.transform.position, heldElementGroup[0].transform.position + (righthand.transform.position - handPoint), 2.0f * Time.deltaTime);
 
                     if (elementequipped == 3) { CollectWater(); }
                 if (Input.GetAxis("HTC_VIU_UnityAxis4") > 0 )
@@ -222,7 +222,10 @@ public class RightHand : MonoBehaviour
             if (hit.transform.GetComponent<Rigidbody>() != null)
             {
                 //  hit.transform.GetComponent<Rigidbody>().AddForce(rightwrist.transform.position - hit.transform.position * Time.deltaTime * 1.0f,ForceMode.Impulse);
-                hit.transform.GetComponent<Rigidbody>().velocity = rightwrist.transform.position - hit.transform.position ;
+                hit.transform.GetComponent<Rigidbody>().velocity = rightwrist.transform.position - hit.transform.position;
+                if (hit.transform.GetComponent<Rigidbody>().velocity.magnitude < 4)
+                { hit.transform.GetComponent<Rigidbody>().velocity = Vector3.Normalize(rightwrist.transform.position - hit.transform.position) * 2.0f; }
+
              //   hit.transform.position = Vector3.MoveTowards(hit.transform.position, transform.position, Time.deltaTime * 5.0f);
             }
             //GameObject go = hit.collider.gameObject;

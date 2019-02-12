@@ -42,21 +42,23 @@ public class ToggleSwitch : MonoBehaviour,      IColliderEventHoverEnterHandler
 
         GetComponent<Renderer>().material = colors[1];
         Debug.Log("hover exitc");
+       
+       
     }
 
     public void OnColliderEventPressEnter(ColliderButtonEventData eventData)
     {
         Debug.Log("press enter");
         GetComponent<Renderer>().material = colors[2];
-        GameObject clone = Instantiate(sword, spawnspot.transform.position, spawnspot.transform.rotation);
-       // spawnedObjects.Add(clone);
+        // spawnedObjects.Add(clone);
     }
 
     public void OnColliderEventPressExit(ColliderButtonEventData eventData)
     {
         Debug.Log("press exit");
         GetComponent<Renderer>().material = colors[3];
-       // foreach (GameObject go in spawnedObjects) { Destroy(go); }
-       // spawnedObjects.Clear();
+        GameObject clone = Instantiate(sword, spawnspot.transform.position, spawnspot.transform.rotation);
+        // foreach (GameObject go in spawnedObjects) { Destroy(go); }
+        // spawnedObjects.Clear();
     }
 }

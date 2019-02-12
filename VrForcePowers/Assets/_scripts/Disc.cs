@@ -68,6 +68,7 @@ public class Disc : MonoBehaviour
                     float velMag = rb.velocity.magnitude;
                 rb.velocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
+                transform.rotation = Quaternion.identity;
                 rb.velocity = (returnSpot.position - transform.position) * speed;
             }       
         }
