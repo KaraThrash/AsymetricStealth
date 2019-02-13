@@ -7,6 +7,7 @@ public class ShipPiece : MonoBehaviour, IColliderEventPressEnterHandler
 {
     public bool canAttach,attached;
     public GameObject connectionPoint,debugObject;
+    public List<Connector> myConnections;
     public HTC.UnityPlugin.Vive.BasicGrabbable bg;
     // Start is called before the first frame update
     void Start()
@@ -24,10 +25,12 @@ public class ShipPiece : MonoBehaviour, IColliderEventPressEnterHandler
         canAttach = true;
         GetComponent<Rigidbody>().isKinematic = false;
         transform.parent = null;
+
+
     }
     public void LetGo()
     {
-        if (connectionPoint != null && canAttach == true)
+        if (connectionPoint != null && canAttach == true && connectionPoint.transform.parent.GetComponent<ShipPiece>().attached == true)
         {
             GetComponent<Rigidbody>().isKinematic = true;
             transform.parent = connectionPoint.transform.parent;
@@ -49,8 +52,10 @@ public class ShipPiece : MonoBehaviour, IColliderEventPressEnterHandler
     }
     public void OnColliderEventPressEnter(ColliderButtonEventData eventData)
     {
-        if (bg.enabled == false) { Instantiate(debugObject, transform.position, transform.rotation); }
-      
+        if (debugObject != null)
+        {
+            if (bg.enabled == false) { Instantiate(debugObject, transform.position, transform.rotation); }
+        }
     }
 
 }

@@ -63,7 +63,11 @@ public class RightHand : MonoBehaviour
                         GrabMoreEarth();
                         canChangeElement = false;
                     }
-
+                    if (canChangeElement == true && elementequipped == 2)
+                    {
+                        FireSize(1);
+                        canChangeElement = false;
+                    }
                 }
                 else if (Input.GetAxis("HTC_VIU_UnityAxis4") < 0)
                 {
@@ -74,7 +78,11 @@ public class RightHand : MonoBehaviour
                         heldElementGroup.RemoveAt(heldElementGroup.Count - 1);
                         canChangeElement = false;
                     }
-
+                    if (canChangeElement == true && elementequipped == 2)
+                    {
+                        FireSize(-1);
+                        canChangeElement = false;
+                    }
                 }
                 else { canChangeElement = true; }
                 if (Input.GetAxis("HTC_VIU_UnityAxis5") >= 0.5f || Input.GetAxis("HTC_VIU_UnityAxis5") <= -0.5f) { handPoint = righthand.transform.position; }
@@ -84,7 +92,17 @@ public class RightHand : MonoBehaviour
                                 {
                                     if (Vector3.Distance(righthand.transform.position, handPoint) > 0.1f )
                                     { go.GetComponent<Rigidbody>().AddForce((righthand.transform.position - handPoint).normalized * 3.0f * Time.deltaTime, ForceMode.Impulse); }
-                                    else { go.GetComponent<Rigidbody>().AddForce((debugObject2.transform.position - go.transform.position) * Vector3.Distance(debugObject2.transform.position , go.transform.position)  * Time.deltaTime, ForceMode.Impulse); }
+                                    else {
+                            if (Vector3.Distance(heldElementGroup[0].transform.position, go.transform.position) > 1.0f)
+                            {
+                                go.GetComponent<Rigidbody>().velocity = (heldElementGroup[0].transform.position - go.transform.position) * Vector3.Distance(heldElementGroup[0].transform.position, go.transform.position);
+                            }
+                            else
+                            {//if close float around main object like an atom
+                                go.GetComponent<Rigidbody>().AddForce(((heldElementGroup[0].transform.position - go.transform.position).normalized) * 3.0f  * Time.deltaTime);
+                            }
+
+                        }
                                 }
                             }
                 }
@@ -121,6 +139,10 @@ public class RightHand : MonoBehaviour
             else { canChangeElement = true; }
 
         }
+    }
+    public void FireSize(int growOrShrink)
+    {
+        heldElementGroup[0].transform.localScale = new Vector3(heldElementGroup[0].transform.localScale.x + (0.1f * growOrShrink), heldElementGroup[0].transform.localScale.y + (0.1f * growOrShrink), heldElementGroup[0].transform.localScale.z + (0.1f * growOrShrink));
     }
     public GameObject GrabMoreEarth()
     {
@@ -197,7 +219,7 @@ public class RightHand : MonoBehaviour
                         {
                             if (heldfire == null)
                             {
-                                heldfire = Instantiate(firePrefab, focuspoint.transform.position, transform.rotation) as GameObject;
+                             //   heldfire = Instantiate(firePrefab, focuspoint.transform.position, transform.rotation) as GameObject;
                                 // heldfire.transform.parent = transform;
                                 //GameObject.Destroy(clone, 3);
                             }
