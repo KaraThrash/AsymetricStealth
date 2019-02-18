@@ -5,7 +5,7 @@ using HTC.UnityPlugin.ColliderEvent;
 
 public class ShipPiece : MonoBehaviour, IColliderEventPressEnterHandler
 {
-    public bool canAttach,attached;
+    public bool mainHubPiece,canAttach,attached;
     public GameObject connectionPoint,debugObject;
     public List<Connector> myConnections;
     public HTC.UnityPlugin.Vive.BasicGrabbable bg;
