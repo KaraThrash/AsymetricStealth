@@ -6,7 +6,8 @@ using HTC.UnityPlugin.ColliderEvent;
 public class ShipPiece : MonoBehaviour, IColliderEventPressEnterHandler
 {
     public bool mainHubPiece,canAttach,attached;
-    public GameObject connectionPoint,debugObject;
+    public int type;
+    public GameObject mainShip,connectionPoint,debugObject,bullet;
     public List<Connector> myConnections;
     public HTC.UnityPlugin.Vive.BasicGrabbable bg;
     // Start is called before the first frame update
@@ -20,11 +21,17 @@ public class ShipPiece : MonoBehaviour, IColliderEventPressEnterHandler
     {
         if (attached == true && bg.enabled == true) { bg.enabled = false; }
     }
+    public void FireLaser()
+    {
+        GameObject clone = Instantiate(bullet,transform.forward + transform.position,transform.rotation);
+        clone.GetComponent<Rigidbody>().velocity = (transform.forward + transform.position) - transform.position * clone.GetComponent<Bullet>().speed;
+
+    }
     public void PickedUp()
     {
         canAttach = true;
         GetComponent<Rigidbody>().isKinematic = false;
-        transform.parent = null;
+      //  transform.parent = null;
 
 
     }
@@ -33,9 +40,9 @@ public class ShipPiece : MonoBehaviour, IColliderEventPressEnterHandler
         if (connectionPoint != null && canAttach == true && connectionPoint.transform.parent.GetComponent<ShipPiece>().attached == true)
         {
             GetComponent<Rigidbody>().isKinematic = true;
-            transform.parent = connectionPoint.transform.parent;
+            transform.parent = mainShip.transform;
             attached = true;
-
+            mainShip.GetComponent<ShipMain>().AddPiece(type,this.gameObject);
 
         }
         canAttach = false;
@@ -52,10 +59,10 @@ public class ShipPiece : MonoBehaviour, IColliderEventPressEnterHandler
     }
     public void OnColliderEventPressEnter(ColliderButtonEventData eventData)
     {
-        if (debugObject != null)
-        {
-            if (bg.enabled == false) { Instantiate(debugObject, transform.position, transform.rotation); }
-        }
+        //if (debugObject != null)
+        //{
+        //    if (bg.enabled == false) { Instantiate(debugObject, transform.position, transform.rotation); }
+        //}
     }
 
 }
