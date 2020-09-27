@@ -16,14 +16,35 @@ public class RightHand : MonoBehaviour
     public int elementequipped;
     public bool focusOn, canChangeElement;
     public List<GameObject> heldElementGroup;
-    public GameObject player;
+    public GameObject player,leftclimbinghand,rightclimbinghand;
+
+    public float climbingPointHeight0, climbingPointHeight1;
+    public int climbingPointsHeld;
     // Start is called before the first frame update
+
+    public void ClimbingPointGrab(float pointheight)
+    {
+        climbingPointsHeld++;
+        //there are only two hands
+        if (climbingPointsHeld > 2) { climbingPointsHeld = 2; }
+        if (climbingPointHeight0 == 0) { climbingPointHeight0 = pointheight; }
+        else { climbingPointHeight1 = pointheight; }
+    }
+    public void ClimbingPointRelease(float pointheight)
+    {
+        climbingPointsHeld--;
+        //there are only two hands
+        if (climbingPointsHeld < 0) { climbingPointsHeld = 0; }
+        if (climbingPointHeight0 == pointheight) { climbingPointHeight0 = 0; }
+        else { climbingPointHeight1 = 0; }
+    }
+
     void Start()
     {
         
     }
 
-    // Update is called once per frame
+
     void Update()
     {
         // Debug.Log("1: " + Input.GetAxis("HTC_VIU_UnityAxis1") + " 2: " + Input.GetAxis("HTC_VIU_UnityAxis2") + " 4: " + Input.GetAxis("HTC_VIU_UnityAxis4") + " 5: " + Input.GetAxis("HTC_VIU_UnityAxis5"));
