@@ -5,21 +5,24 @@ using UnityEngine.UI;
 
 public class Bending : MonoBehaviour
 {
-    public float watertimer,handtrackingtimer,climbspeed;
+    public float watertimer,handtrackingtimer,climbspeed,climbingbuffer = 0.05f, raycastbuffer; //climbingbuffer to avoid jitterness for small hand movements
+
     public Material[] colors;
+
     public GameObject focuspoint, righthand, rightwrist, debugObject, debugObject2, debugtextsitspot;
     public GameObject heldElement;
     public GameObject firePrefab;
     public GameObject windPrefab;
     public GameObject grabbedEarth;
     public GameObject heldfire;
+
     public Vector3 objectPoint, handPoint,grabpos,playerstartpos; //where the object/hand where in space when the element was grabbed
     public int elementequipped;
     public bool focusOn, canChangeElement;
     public List<GameObject> heldElementGroup;
     public List<Vector3> handhistory;
     public Text debugtext;
-    public string elementequippedstring,inputaxis;
+    public string elementequippedstring,usepoweraxis,holdingelementaxis;
     public GameObject visualHand,player;
     public bool onHandHold;
     // Start is called before the first frame update
@@ -51,20 +54,23 @@ public class Bending : MonoBehaviour
 
 
 
-    if (grabpos != Vector3.zero && Input.GetAxis(inputaxis) != 0)
+    if (grabpos != Vector3.zero && Input.GetAxis(usepoweraxis) != 0)
     {
-        player.GetComponent<Rigidbody>().useGravity = false;
+        //player.GetComponent<Rigidbody>().useGravity = false;
 
 
         Vector3 targetos = ( visualHand.transform.position - transform.position).normalized * 0.5f;
-        player.transform.position = Vector3.MoveTowards(player.transform.position, playerstartpos + targetos, Time.deltaTime * climbspeed );
+            if (targetos.magnitude > climbingbuffer)
+            { 
+                player.transform.position = Vector3.MoveTowards(player.transform.position, playerstartpos + targetos, Time.deltaTime * climbspeed );
+             }
         //* Vector3.Distance(playerstartpos + targetos, player.transform.position)
 
 
 
     }
     else {
-      if (Input.GetAxis(inputaxis) == 0)
+      if (Input.GetAxis(usepoweraxis) == 0)
       {
           //player.GetComponent<Rigidbody>().useGravity = true;
 
@@ -83,7 +89,7 @@ public class Bending : MonoBehaviour
 
         }
 
-      if (Input.GetAxis(inputaxis) > 0)
+      if (Input.GetAxis(usepoweraxis) > 0)
       {
           UsePower();
 
@@ -103,7 +109,7 @@ public class Bending : MonoBehaviour
         onHandHold = true; visualHand.transform.rotation = handhold.transform.rotation;
         if (grabpos == Vector3.zero)
         {
-            if (Input.GetAxis(inputaxis) != 0)
+            if (Input.GetAxis(usepoweraxis) != 0)
             {
                 grabpos = transform.position;
                 playerstartpos = player.transform.position;
@@ -135,14 +141,7 @@ public class Bending : MonoBehaviour
 
     public void NotUsingPower()
     {
-        if (heldElementGroup.Count > 0)
-        {
-            foreach (GameObject go in heldElementGroup)
-            { go.GetComponent<Rigidbody>().useGravity = true; }
-            heldElementGroup.Clear();
-            heldElement = null;
-
-        }
+       
         handtrackingtimer -= Time.deltaTime;
         if (handtrackingtimer <= 0)
         {
@@ -153,12 +152,24 @@ public class Bending : MonoBehaviour
 
             if ( Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown("joystick button 5"))
                 {
+            if (heldElementGroup.Count > 0)
+            {
+                foreach (GameObject go in heldElementGroup)
+                { go.GetComponent<Rigidbody>().useGravity = true; }
+                heldElementGroup.Clear();
+                heldElement = null;
+
+            }
+            else {
                 if (elementequippedstring == "air") { elementequippedstring = "earth"; elementequipped = 1; }
                 else if (elementequippedstring == "earth") { elementequippedstring = "fire"; elementequipped = 2; }
                 else if (elementequippedstring == "fire") { elementequippedstring = "water"; elementequipped = 3; }
                 else { elementequippedstring = "air"; elementequipped = 0; }
 
                 if (colors.Length >= elementequipped) { rightwrist.GetComponent<Renderer>().material = colors[elementequipped]; }
+            }
+
+           
             }
 
 
@@ -225,16 +236,24 @@ public class Bending : MonoBehaviour
         Debug.Log("27 right hand");
         // focuspoint = righthand;
         if (heldElementGroup.Count <= 0)
-        { rayCheck(); }
+        {
+            if (raycastbuffer > 0)
+            { raycastbuffer -= Time.deltaTime; }
+            else {
+                rayCheck();
+            }
+        }
         else
         {
             debugObject2.transform.position = Vector3.MoveTowards(debugObject2.transform.position, objectPoint + (transform.position - handPoint), 2.0f * Time.deltaTime);
 
-            if (Input.GetAxis(inputaxis) > 0)
+            if (Input.GetAxis(usepoweraxis) > 0)
             {
                 CollectElement(elementequippedstring);
             }
-            else if (Input.GetAxis("HTC_VIU_UnityAxis5") < 0)
+            else { canChangeElement = true; }
+
+            if (Input.GetAxis(holdingelementaxis) > 0.3f)
             {
                 if (canChangeElement == true && heldElementGroup.Count > 1)
                 {
@@ -242,14 +261,20 @@ public class Bending : MonoBehaviour
                     heldElementGroup[heldElementGroup.Count - 1].GetComponent<Rigidbody>().AddForce(Vector3.up * 2.0f * Time.deltaTime, ForceMode.Impulse);
                     heldElementGroup.RemoveAt(heldElementGroup.Count - 1);
                     canChangeElement = false;
+                    
                 }
-                if (canChangeElement == true && elementequipped == 2)
+
+
+            }
+            if (Input.GetAxis(holdingelementaxis) < -0.3f)
+            {
+                if ( elementequipped == 2)
                 {
-                    FireSize(-1);
+                    FireSize(1);
                     canChangeElement = false;
                 }
             }
-            else { canChangeElement = true; }
+            
 
             //if (Input.GetAxis("HTC_VIU_UnityAxis5") >= 0.5f || Input.GetAxis("HTC_VIU_UnityAxis5") <= -0.5f) { handPoint = righthand.transform.position; }
 
@@ -259,7 +284,11 @@ public class Bending : MonoBehaviour
 
     public void FireSize(int growOrShrink)
     {
-        heldElementGroup[0].transform.localScale = new Vector3(heldElementGroup[0].transform.localScale.x + (0.1f * growOrShrink), heldElementGroup[0].transform.localScale.y + (0.1f * growOrShrink), heldElementGroup[0].transform.localScale.z + (0.1f * growOrShrink));
+        if (heldElementGroup.Count > 0)
+        {
+            heldElementGroup[0].transform.localScale = new Vector3(heldElementGroup[0].transform.localScale.x + (0.1f * growOrShrink), heldElementGroup[0].transform.localScale.y + (0.1f * growOrShrink), heldElementGroup[0].transform.localScale.z + (0.1f * growOrShrink));
+
+        }
     }
 
     public void CollectElement(string elementtype)
@@ -311,9 +340,10 @@ if(Physics.Raycast(focuspoint.transform.position, rightwrist.transform.forward, 
         {
             if (hit.transform.GetComponent<Rigidbody>() != null && hit.transform.tag == "toy")
             {
+                    raycastbuffer = 0.2f;
                 //  hit.transform.GetComponent<Rigidbody>().AddForce(rightwrist.transform.position - hit.transform.position * Time.deltaTime * 1.0f,ForceMode.Impulse);
                 //hit.transform.GetComponent<Rigidbody>().velocity = (rightwrist.transform.position - (hit.transform.position + transform.up)).normalized * 10;
-hit.transform.GetComponent<Rigidbody>().velocity = (hit.transform.position - rightwrist.transform.position).normalized * 5.0f;
+                    hit.transform.GetComponent<Rigidbody>().velocity = (hit.transform.position - rightwrist.transform.position).normalized * 5.0f;
                 // hit.transform.position = Vector3.MoveTowards(hit.transform.position, transform.position, Time.deltaTime * 5.0f);
             }
 

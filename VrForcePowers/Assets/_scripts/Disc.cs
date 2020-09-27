@@ -21,9 +21,10 @@ public class Disc : MonoBehaviour
     {
         if (bounces >= maxBounces)
         {
-            if (Vector3.Distance(transform.position, returnSpot.position) > 1)
+            if (Vector3.Distance(transform.position, returnSpot.position) > 0.1f)
             {
-                rb.velocity = (returnSpot.position - transform.position).normalized * speed;
+                rb.velocity = (returnSpot.position - transform.position) * speed;
+                //rb.velocity = (returnSpot.position - transform.position).normalized * speed;
 
             }
                 else {
