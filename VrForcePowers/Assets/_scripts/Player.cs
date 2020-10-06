@@ -22,10 +22,9 @@ public class Player : MonoBehaviour
     public void CheckForGravity()
     {
         //if neither hand is holding onto as climbable object then use gravity
-        if (righthand.grabpos != Vector3.zero || lefthand.grabpos != Vector3.zero)
-        { rb.useGravity = false; }
-        else 
+        if (righthand.grabpos == Vector3.zero || lefthand.grabpos == Vector3.zero)
         { rb.useGravity = true; }
+      
 
     }
 
