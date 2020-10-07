@@ -6,10 +6,10 @@ using UnityEngine.UI;
 public class Bending : MonoBehaviour
 {
     public float watertimer,handtrackingtimer,climbspeed,climbingbuffer = 0.05f, raycastbuffer, grabelementsbuffer; //climbingbuffer to avoid jitterness for small hand movements
-
+    public float raycastradius,bendingDistance = 2;
     public Material[] colors;
 
-    public GameObject focuspoint, righthand, rightwrist, debugObject, debugObject2, debugtextsitspot,forcegrabobj;
+    public GameObject focuspoint, righthand, rightwrist, debugObject, debugObject2, debugtextsitspot,forcegrabobj, bendingTrackingObj;
     public GameObject heldElement;
     public GameObject firePrefab;
     public GameObject windPrefab;
@@ -50,8 +50,8 @@ public class Bending : MonoBehaviour
 
 
         handtrackingtimer -= Time.deltaTime;
-        //if (handtrackingtimer <= 0 )
-        if (Vector3.Distance(transform.position,handhistory[2]) > 0.5f )
+        if (handtrackingtimer <= 0)
+        //if (Vector3.Distance(transform.position,handhistory[2]) > 0.5f )
         {
             UpdateHandHistory(transform.position - player.transform.position);
             handtrackingtimer = 0.1f;
@@ -95,21 +95,22 @@ public class Bending : MonoBehaviour
 
             if (forcegrabobj != null && Vector3.Distance(forcegrabobj.transform.position, transform.position) > 0.1f)
             {
-                forcegrabobj.GetComponent<Rigidbody>().velocity = transform.position - forcegrabobj.transform.position * 3.0f;
+                //forcegrabobj.GetComponent<Rigidbody>().velocity = transform.position - forcegrabobj.transform.position * 3.0f;
+                forcegrabobj.transform.position  = Vector3.MoveTowards(forcegrabobj.transform.position, transform.position, Time.deltaTime * 5.0f);
             }
             else { forcegrabobj = null; }
 
-            if (heldElementGroup.Count > 0)
-            {
-                HoldingElement();
-
-
-            }
+           
                 if (Input.GetAxis(usepoweraxis) >= 1)
                 {
                     UsePower();
+                if (heldElementGroup.Count > 0)
+                {
+                    HoldingElement();
+
 
                 }
+            }
                 else
                 {
                     NotUsingPower();
@@ -193,10 +194,12 @@ public class Bending : MonoBehaviour
 
     public void UpdateHandHistory(Vector3 newpos)
     {
-        handhistory[0] = handhistory[1];
-        handhistory[1] = handhistory[2];
-        handhistory[2] = new Vector3(newpos.x - handhistory[2].x, newpos.y - handhistory[2].y, newpos.z - handhistory[2].z);
-        debugtext.text = handhistory[2].ToString() + "\n" + debugtext.text.Substring(0,20);
+        handhistory.Add(newpos);
+
+        handhistory.RemoveAt(0);
+        //handhistory[1] = handhistory[2];
+        //handhistory[2] = new Vector3(newpos.x - handhistory[2].x, newpos.y - handhistory[2].y, newpos.z - handhistory[2].z);
+        debugtext.text = handhistory[2].ToString() + "\n";
         // if (handhistory[2].z > 0.1f && handhistory[2].y > 0.1f && handhistory[2].x > 0.1f) { Instantiate(firePrefab, transform.position, transform.rotation); }
         // if (handhistory[2].x < -0.1f && handhistory[2].y < -0.1f && handhistory[2].x < -0.1f) { Instantiate(windPrefab, transform.position, transform.rotation); }
 
@@ -205,11 +208,15 @@ public class Bending : MonoBehaviour
         // if (handhistory[2].z > 0.1f) { Instantiate(firePrefab, transform.position, transform.rotation); }
         // if (handhistory[2].x < -0.1f) { Instantiate(windPrefab, transform.position, transform.rotation); }
         // if (handhistory[2].y < -0.1f) { Instantiate(windPrefab, transform.position, transform.rotation); }
-        // if (handhistory[2].z < -0.1f) { Instantiate(windPrefab, transform.position, transform.rotation); }
+        if (handhistory[2].z - handhistory[1].z > 0.1f) { bendingDistance = Mathf.Clamp(bendingDistance += 0.5f, 1, 10); }
+        if (handhistory[2].z - handhistory[1].z < -0.1f) { bendingDistance = Mathf.Clamp(bendingDistance -= 0.5f, 1, 10); }
+
     }
 
     public void HoldingElement()
     {
+        bendingTrackingObj.transform.position = transform.position + transform.forward * bendingDistance + handhistory[2]; //Vector3.MoveTowards(bendingTrackingObj.transform.position, transform.position + transform.forward * bendingDistance + handhistory[2], 2.0f * Time.deltaTime);
+
         // heldElement.transform.position = Vector3.MoveTowards(heldElement.transform.position,focuspoint.transform.position,2.0f * Time.deltaTime);
         //debugObject2.transform.position = Vector3.MoveTowards(debugObject2.transform.position, heldElement.transform.position + (righthand.transform.position - handPoint), 2.0f * Time.deltaTime);
         //if (Vector3.Distance(righthand.transform.position, handPoint) > 0.1f)
@@ -220,30 +227,36 @@ public class Bending : MonoBehaviour
         {
             if (go != null && go.GetComponent<Rigidbody>() == true)
             {
+                //go.transform.position = Vector3.MoveTowards(go.transform.position, (bendingTrackingObj.transform.position).normalized * 5, 2 * Time.deltaTime);
 
+                //go.GetComponent<Rigidbody>().velocity = Vector3.Lerp(go.GetComponent<Rigidbody>().velocity, (bendingTrackingObj.transform.position - go.transform.position),Time.deltaTime);
+                go.GetComponent<Rigidbody>().AddForce(bendingTrackingObj.transform.position - go.transform.position * Vector3.Distance(bendingTrackingObj.transform.position , go.transform.position) * 15.0f * Time.deltaTime);
+                //if (Vector3.Distance(transform.position, handhistory[2]) > 0.01f)
+                //{
+                //    go.GetComponent<Rigidbody>().velocity = transform.position - handhistory[2];
+                //  //go.GetComponent<Rigidbody>().velocity = (debugObject2.transform.position - go.transform.position).normalized * 3.0f;
+                //   // go.GetComponent<Rigidbody>().AddForce((righthand.transform.position - handPoint).normalized * 3.0f * Time.deltaTime, ForceMode.Impulse);
 
-                if (Vector3.Distance(transform.position, handhistory[0]) > 0.1f)
-                {
-                    go.GetComponent<Rigidbody>().velocity = transform.parent.localPosition - elementgrabpoint;
-                  //go.GetComponent<Rigidbody>().velocity = (debugObject2.transform.position - go.transform.position).normalized * 3.0f;
-                   // go.GetComponent<Rigidbody>().AddForce((righthand.transform.position - handPoint).normalized * 3.0f * Time.deltaTime, ForceMode.Impulse);
+                // }
+                //else
+                //{
+                //    if (go != heldElement)
+                //    { go.GetComponent<Rigidbody>().velocity = (heldElement.transform.position - go.transform.position).normalized * 1.0f; }
+                //    else 
+                //    {
+                //        go.transform.position = Vector3.MoveTowards(go.transform.position, (bendingTrackingObj.transform.position).normalized * 5, 2 * Time.deltaTime);
+                //    }
 
-                 }
-                else
-                {
-                    if (go != heldElement)
-                    { go.GetComponent<Rigidbody>().velocity = (heldElement.transform.position - go.transform.position).normalized * 1.0f; }
-                    
-                    // if (Vector3.Distance(heldElementGroup[0].transform.position, go.transform.position) > 1.0f)
-                    // {
-                    //     go.GetComponent<Rigidbody>().velocity = (heldElementGroup[0].transform.position - go.transform.position) * Vector3.Distance(heldElementGroup[0].transform.position, go.transform.position);
-                    // }
-                    // else
-                    // {//if close float around main object like an atom
-                    //     go.GetComponent<Rigidbody>().velocity = (heldElementGroup[0].transform.position - go.transform.position).normalized * 3.0f;
-                    // }
+                //    // if (Vector3.Distance(heldElementGroup[0].transform.position, go.transform.position) > 1.0f)
+                //    // {
+                //    //     go.GetComponent<Rigidbody>().velocity = (heldElementGroup[0].transform.position - go.transform.position) * Vector3.Distance(heldElementGroup[0].transform.position, go.transform.position);
+                //    // }
+                //    // else
+                //    // {//if close float around main object like an atom
+                //    //     go.GetComponent<Rigidbody>().velocity = (heldElementGroup[0].transform.position - go.transform.position).normalized * 3.0f;
+                //    // }
 
-                }
+                //}
             }
         }
     }
@@ -262,7 +275,6 @@ public class Bending : MonoBehaviour
         }
         else
         {
-            debugObject2.transform.position = Vector3.MoveTowards(debugObject2.transform.position, objectPoint + (transform.position - handPoint), 2.0f * Time.deltaTime);
 
             if (Input.GetAxis(usepoweraxis) >= 1)
             {
@@ -311,9 +323,9 @@ public class Bending : MonoBehaviour
         {
             if (heldElementGroup.Count > 0 && heldElementGroup[0].transform.localScale.x > 0.1f)
             {
-                heldElementGroup[0].transform.localScale = heldElementGroup[0].transform.localScale * 0.5f;
+                heldElementGroup[0].transform.localScale = heldElementGroup[0].transform.localScale * 0.75f;
 
-                GameObject clone = Instantiate(heldElementGroup[0].gameObject, heldElementGroup[0].transform.position + transform.up * heldElementGroup[0].transform.localScale.x, heldElementGroup[0].transform.rotation);
+                GameObject clone = Instantiate(heldElementGroup[0].gameObject, heldElementGroup[0].transform.position + transform.up, heldElementGroup[0].transform.rotation);
                 //clone.transform.localScale = clone.transform.localScale * 0.5f;
                 grabelementsbuffer = 1.5f;
 
@@ -349,7 +361,7 @@ public class Bending : MonoBehaviour
                     {
                         heldElementGroup.Add(go.transform.gameObject);
                         go.transform.GetComponent<Rigidbody>().useGravity = false;
-                        go.transform.GetComponent<Rigidbody>().AddForce(Vector3.up * 5.0f, ForceMode.Impulse);
+                        //go.transform.GetComponent<Rigidbody>().AddForce(Vector3.up * 5.0f, ForceMode.Impulse);
                         grabelementsbuffer = 0.5f;
                         return;
                     }
@@ -368,46 +380,52 @@ public class Bending : MonoBehaviour
         //Physics.Raycast(focuspoint.transform.position, rightwrist.transform.forward, out hit, 1000f);
         // Then you could find your GO with a specific tag by doing something like:
 
-if(Physics.Raycast(transform.position, transform.forward, out hit, 1000f) ){
-        if (hit.transform.tag == elementequippedstring)
+        if (Physics.SphereCast(transform.position, raycastradius, rightwrist.transform.forward, out hit, 100.0f))
         {
-            Debug.Log("Hit ELement");
-            heldElementGroup.Add(hit.transform.gameObject);
-            if (heldElement == null)
+            raycastradius = 1;
+
+
+            if (hit.transform.tag == elementequippedstring)
             {
-                debugObject.transform.position = hit.point;
-                //hit.transform.position = new Vector3(hit.transform.position.x, hit.transform.position.y + 2, hit.transform.position.z);
-                heldElement = hit.transform.gameObject;
-                    elementgrabpoint = transform.parent.localPosition;
+                Debug.Log("Hit ELement");
+                heldElementGroup.Add(hit.transform.gameObject);
+                if (heldElement == null)
+                {
+                    debugObject.transform.position = hit.point;
+                    //hit.transform.position = new Vector3(hit.transform.position.x, hit.transform.position.y + 2, hit.transform.position.z);
+                    heldElement = hit.transform.gameObject;
+                    elementgrabpoint = transform.position;
 
 
-                objectPoint = hit.point;
-                handPoint = transform.position;
+                    objectPoint = hit.point;
+                    handPoint = transform.position;
+                }
+                raycastradius = 1;
+
             }
-
-
-        }
-        else
-        {
-            if (hit.transform.GetComponent<Rigidbody>() != null && hit.transform.tag == "toy")
+            else if (hit.transform.GetComponent<Rigidbody>() != null && hit.transform.tag == "toy")
             {
-                    raycastbuffer = 0.2f;
+
+                raycastbuffer = 0.2f;
                 //  hit.transform.GetComponent<Rigidbody>().AddForce(rightwrist.transform.position - hit.transform.position * Time.deltaTime * 1.0f,ForceMode.Impulse);
                 //hit.transform.GetComponent<Rigidbody>().velocity = (rightwrist.transform.position - (hit.transform.position + transform.up)).normalized * 10;
-                    hit.transform.GetComponent<Rigidbody>().velocity = ( transform.position - hit.transform.position).normalized * 5.0f;
+                hit.transform.GetComponent<Rigidbody>().velocity = (transform.position - hit.transform.position).normalized * 5.0f;
                 // hit.transform.position = Vector3.MoveTowards(hit.transform.position, transform.position, Time.deltaTime * 5.0f);
+
+                raycastradius = 1;
+
+
+                //GameObject go = hit.collider.gameObject;
+
+                //if (go.transform.Find("Fire(Clone)") == null )
+                //{
+                //    GameObject clone = Instantiate(firePrefab, go.transform.position, go.transform.rotation) as GameObject;
+                //    clone.transform.parent = go.transform;
+                //    //GameObject.Destroy(clone, 3);
+                //}
             }
-
-            //GameObject go = hit.collider.gameObject;
-
-            //if (go.transform.Find("Fire(Clone)") == null )
-            //{
-            //    GameObject clone = Instantiate(firePrefab, go.transform.position, go.transform.rotation) as GameObject;
-            //    clone.transform.parent = go.transform;
-            //    //GameObject.Destroy(clone, 3);
-            //}
+            else { raycastradius++; }
         }
-}
     }
 
 }
